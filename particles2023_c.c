@@ -549,17 +549,20 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
 		 ParticleStats(*pp,t);
        // Initialize Forces
        for ( i=0; i < 2*pp->np; i++ ) forces[i] = 0.0;
-       #pragma omp parallel for
        for ( i=0; i < pp->np; i++ ) {
             newparticle(&p1,pp->weight[i],pp->x[i],pp->y[i],pp->vx[i],pp->vy[i]);
+         double f_0_i = forces[index2D(0,i,2)];
+         double f_1_i = forces[index2D(1,i,2)];
 			for ( j=0; j < pp->np; j++ ) {
 				if ( j != i ) {
                  newparticle(&p2,pp->weight[j],pp->x[j],pp->y[j],pp->vx[j],pp->vy[j]);
 				 ForceCompt(f,p1,p2);
-				 forces[index2D(0,i,2)] = forces[index2D(0,i,2)] + f[0];
-				 forces[index2D(1,i,2)] = forces[index2D(1,i,2)] + f[1];
+				 f_0_i += f[0];
+				 f_1_i += f[1];
 				}
-			 }			 
+			 }
+         forces[index2D(0,i,2)] = f_0_i; 			 
+         forces[index2D(1,i,2)] = f_1_i; 			 
 		 }
 		 ComptPopulation(pp,forces);
 	 }
