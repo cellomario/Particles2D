@@ -528,9 +528,7 @@ void ParticleGeneration(struct i2dGrid grid, struct i2dGrid pgrid, struct Popula
 void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
 {
    double *forces;
-   double vmin, vmax;
-	struct particle p1;
-	int i, j, t;
+   // double vmin, vmax;
 
    // temporary array of forces 
    forces = malloc(2 * pp->np * sizeof((double)1.0));
@@ -540,33 +538,37 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
    }
 
 	 // compute forces acting on each particle step by step
-     for ( t=0; t < mxiter; t++ ) { // iteration
-		 fprintf(stdout,"Step %d of %d\n",t,mxiter);
-		 ParticleScreen(pgrid,*pp,t);
-		 // DumpPopulation call frequency may be changed
-		 if ( t%4 == 0 ) DumpPopulation(*pp,t);
-		 ParticleStats(*pp,t);
-       // Initialize Forces
-       for ( i=0; i < 2*pp->np; i++ ) forces[i] = 0.0;
-       for ( i=0; i < pp->np; i++ ) {
-            newparticle(&p1,pp->weight[i],pp->x[i],pp->y[i],pp->vx[i],pp->vy[i]);
+   for (int t=0; t < mxiter; t++ ) { // iteration
+      fprintf(stdout,"Step %d of %d\n",t,mxiter);
+      ParticleScreen(pgrid,*pp,t);
+      // DumpPopulation call frequency may be changed
+      if ( t%4 == 0 ) DumpPopulation(*pp,t);
+      ParticleStats(*pp,t);
+      // Initialize Forces
+      #pragma omp parallel for
+      for (int i=0; i < 2*pp->np; i++ ) forces[i] = 0.0;
+
+      for (int i=0; i < pp->np; i++ ) {
+         struct particle p1;
+         newparticle(&p1,pp->weight[i],pp->x[i],pp->y[i],pp->vx[i],pp->vy[i]);
          double f_0_i = forces[index2D(0,i,2)];
          double f_1_i = forces[index2D(1,i,2)];
          #pragma omp parallel for reduction(+:f_0_i,f_1_i) schedule(static)
-			for ( j=0; j < pp->np; j++ ) {
-				if ( j != i ) {
-	            double f[2];
+         for (int j=0; j < pp->np; j++ ) {
+            if ( j != i ) {
+               double f[2];
                struct particle p2;
                newparticle(&p2,pp->weight[j],pp->x[j],pp->y[j],pp->vx[j],pp->vy[j]);
-				   ForceCompt(f,p1,p2);
-				   f_0_i += f[0];
-				   f_1_i += f[1];
-				}
-			 }
+               ForceCompt(f,p1,p2);
+               f_0_i += f[0];
+               f_1_i += f[1];
+            }
+         }
          forces[index2D(0,i,2)] = f_0_i; 			 
          forces[index2D(1,i,2)] = f_1_i; 			 
-		 }
-		 ComptPopulation(pp,forces);
+      }
+      
+      ComptPopulation(pp,forces);
 	 }
 	 free(forces);     
      
