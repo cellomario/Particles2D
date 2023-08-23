@@ -180,12 +180,10 @@ void ComptPopulation(struct Population *p, double *forces)
 	 * compute effects of forces on particles in a interval time
 	 * 
 	*/
-	int i;
-	double x0, x1, y0, y1;
-	
-	for ( i = 0; i < p->np; i++ ) {
-		x0 = p->x[i]; 
-      y0 = p->y[i]; 
+   #pragma omp parallel for
+	for (int i = 0; i < p->np; i++ ) {
+		double x0 = p->x[i]; 
+      double y0 = p->y[i]; 
 				
 		p->x[i] = p->x[i] + (p->vx[i]*TimeBit) + 
 		     (0.5*forces[index2D(0,i,2)]*TimeBit*TimeBit/p->weight[i]);
@@ -554,9 +552,9 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
             struct particle p1;
             double f[2];
             struct particle p2;
-            newparticle(&p1,pp->weight[i],pp->x[i],pp->y[i],pp->vx[i],pp->vy[i]);
+            newparticle(&p1,pp->weight[i],pp->x[i],pp->y[i],0.0,0.0);
             if ( j != i ) {
-               newparticle(&p2,pp->weight[j],pp->x[j],pp->y[j],pp->vx[j],pp->vy[j]);
+               newparticle(&p2,pp->weight[j],pp->x[j],pp->y[j],0.0,0.0);
                ForceCompt(f,p1,p2);
                forces[index2D(0,i,2)] += f[0];
                forces[index2D(1,i,2)] += f[1];
@@ -891,7 +889,7 @@ int main( int argc, char *argv[])    /* FinalApplication */
    
    time(&t1);
    fprintf(stdout,"Ending   at: %s", asctime(localtime(&t1)));
-   fprintf(stdout,"Computations ended in %lf seconds\n",difftime(t1,t0));
+   fprintf(stdout,"Computations ended in %f seconds\n",difftime(t1,t0));
 
    fprintf(stdout,"End of program!\n");
 
