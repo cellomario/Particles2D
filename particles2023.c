@@ -180,7 +180,7 @@ void ComptPopulation(struct Population *p, double *forces)
 	 * compute effects of forces on particles in a interval time
 	 * 
 	*/
-   #pragma omp simd
+   #pragma omp for simd
 	for (int i = 0; i < p->np; i++ ) {
 		double x0 = p->x[i]; 
       double y0 = p->y[i]; 
@@ -547,22 +547,28 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
       if ( t%4 == 0 ) DumpPopulation(*pp,t);
       ParticleStats(*pp,t);
       // Initialize Forces
-      #pragma omp parallel for
-      for (int i=0; i < 2*pp->np; i++ ){
-         forces[i] = 0.0;
-      }
+      // #pragma omp parallel for
+      // for (int i=0; i < 2*pp->np; i++ ){
+      //    forces[i] = 0.0;
+      // }
       #pragma omp parallel
       for (int i=0; i < pp->np; i++ ) {
+         double fx = 0.0;
+         double fy = 0.0;
+         double xi = pp->x[i], yi = pp->y[i], wi = pp->weight[i];
          #pragma omp for simd
          for (int j=0; j < pp->np; j++ ) {
-               double dx = (pp->x[i] - pp->x[j]);
-               double dy = (pp->y[i] - pp->y[j]);
+               double dx = (xi - pp->x[j]);
+               double dy = (yi - pp->y[j]);
                double d2 = dx * dx + dy * dy;
                if ( d2 < tiny ) d2 = tiny;
-               double force = (k * pp->weight[i] * pp->weight[j]) / d2;
-               forces[index2D(0,i,2)] += force*dx/sqrt(d2);
-               forces[index2D(1,i,2)] += force*dy/sqrt(d2);
+               double force = (k * wi * pp->weight[j]) / d2;
+               fx += force*dx/sqrt(d2);
+               fy += force*dy/sqrt(d2);
          }
+         forces[index2D(0,i,2)] = fx;
+         forces[index2D(1,i,2)] = fy;
+         
       }
       ComptPopulation(pp,forces);
 	 }
