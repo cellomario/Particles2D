@@ -551,12 +551,12 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
       // for (int i=0; i < 2*pp->np; i++ ){
       //    forces[i] = 0.0;
       // }
-      #pragma omp parallel
+      #pragma omp parallel for simd
       for (int i=0; i < pp->np; i++ ) {
          double fx = 0.0;
          double fy = 0.0;
          double xi = pp->x[i], yi = pp->y[i], wi = pp->weight[i];
-         #pragma omp for simd
+         // #pragma omp for simd
          for (int j=0; j < pp->np; j++ ) {
                double dx = (xi - pp->x[j]);
                double dy = (yi - pp->y[j]);
