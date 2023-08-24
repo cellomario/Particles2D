@@ -527,6 +527,8 @@ void ParticleGeneration(struct i2dGrid grid, struct i2dGrid pgrid, struct Popula
 void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
 {
    double *forces;
+   static double k=0.001, tiny=(double)1.0/(double)1000000.0;
+
    // double vmin, vmax;
 
    // temporary array of forces 
@@ -535,6 +537,7 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
       fprintf(stderr,"Error mem alloc of forces!\n");
       exit(1);
    }
+
 
 	 // compute forces acting on each particle step by step
    for (int t=0; t < mxiter; t++ ) { // iteration
@@ -545,20 +548,20 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
       ParticleStats(*pp,t);
       // Initialize Forces
       #pragma omp parallel for
-      for (int i=0; i < 2*pp->np; i++ ) forces[i] = 0.0;
-      #pragma omp parallel for collapse(2) 
+      for (int i=0; i < 2*pp->np; i++ ){
+         forces[i] = 0.0;
+      }
+      #pragma omp parallel
       for (int i=0; i < pp->np; i++ ) {
+         #pragma omp for simd
          for (int j=0; j < pp->np; j++ ) {
-            struct particle p1;
-            double f[2];
-            struct particle p2;
-            newparticle(&p1,pp->weight[i],pp->x[i],pp->y[i],0.0,0.0);
-            if ( j != i ) {
-               newparticle(&p2,pp->weight[j],pp->x[j],pp->y[j],0.0,0.0);
-               ForceCompt(f,p1,p2);
-               forces[index2D(0,i,2)] += f[0];
-               forces[index2D(1,i,2)] += f[1];
-            } 
+               double dx = (pp->x[i] - pp->x[j]);
+               double dy = (pp->y[i] - pp->y[j]);
+               double d2 = dx * dx + dy * dy;
+               if ( d2 < tiny ) d2 = tiny;
+               double force = (k * pp->weight[i] * pp->weight[j]) / d2;
+               forces[index2D(0,i,2)] += force*dx/sqrt(d2);
+               forces[index2D(1,i,2)] += force*dy/sqrt(d2);
          }
       }
       ComptPopulation(pp,forces);

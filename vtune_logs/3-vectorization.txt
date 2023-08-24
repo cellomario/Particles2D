@@ -1,0 +1,125 @@
+Starting at: Thu Aug 24 16:35:26 2023
+Initializing grids ...
+MaxIters = 3000
+MaxSteps = 10
+TimeBit = 0.001000
+GenFieldGrid i2dGrid: EX, EY = 2400, 2000
+         Xs, Xe = 0.427734, 0.451465; Ys, Ye = 0.321289, 0.342053
+ParticleGrid i2dGrid: EX, EY = 1200, 1000
+         Xs, Xe = 0.000000, 1200.000000; Ys, Ye = 0.000000, 1000.000000
+GeneratingField...
+Computing generating field ...
+ParticleGeneration...
+Population: np = 21352
+SystemEvolution...
+Step 0 of 10
+Step 1 of 10
+Step 2 of 10
+Step 3 of 10
+Step 4 of 10
+Step 5 of 10
+Step 6 of 10
+Step 7 of 10
+Step 8 of 10
+Step 9 of 10
+Ending   at: Thu Aug 24 16:35:31 2023
+Computations ended in 5.000000 seconds
+End of program!
+Elapsed Time: 4.498s
+    SP GFLOPS: 0.000
+    DP GFLOPS: 12.934
+    x87 GFLOPS: 0.000
+    CPI Rate: 0.671
+    Average CPU Frequency: 3.141 GHz
+    Total Thread Count: 44
+Effective Physical Core Utilization: 69.6% (2.784 out of 4)
+ | The metric value is low, which may signal a poor physical CPU cores
+ | utilization caused by:
+ |     - load imbalance
+ |     - threading runtime overhead
+ |     - contended synchronization
+ |     - thread/process underutilization
+ |     - incorrect affinity that utilizes logical cores instead of physical
+ |       cores
+ | Explore sub-metrics to estimate the efficiency of MPI and OpenMP parallelism
+ | or run the Locks and Waits analysis to identify parallel bottlenecks for
+ | other parallel runtimes.
+ |
+    Effective Logical Core Utilization: 35.7% (2.853 out of 8)
+     | The metric value is low, which may signal a poor logical CPU cores
+     | utilization. Consider improving physical core utilization as the first
+     | step and then look at opportunities to utilize logical cores, which in
+     | some cases can improve processor throughput and overall performance of
+     | multi-threaded applications.
+     |
+    Serial Time (outside parallel regions): 1.101s (24.5%)
+     | Serial Time of your application is high. It directly impacts application
+     | Elapsed Time and scalability. Explore options for parallelization,
+     | algorithm or microarchitecture tuning of the serial part of the
+     | application.
+     |
+
+        Top Serial Hotspots (outside parallel regions)
+        Function                                  Module               Serial CPU Time
+        ----------------------------------------  -------------------  ---------------
+        [Loop at line 0 in GeneratingField]       particles2023_c.exe           0.580s
+        [Loop at line 0 in GeneratingField]       particles2023_c.exe           0.023s
+        [Loop at line 850 in IntVal2ppmB]         particles2023_c.exe           0.023s
+        [Loop at line 505 in ParticleGeneration]  particles2023_c.exe           0.020s
+        [Loop at line 488 in ParticleGeneration]  particles2023_c.exe           0.018s
+        [Others]                                  N/A                           0.093s
+    Parallel Region Time: 3.397s (75.5%)
+        Estimated Ideal Time: 3.132s (69.6%)
+        OpenMP Potential Gain: 0.266s (5.9%)
+Memory Bound: 15.0% of Pipeline Slots
+    Cache Bound: 12.5% of Clockticks
+    DRAM Bound: 0.0% of Clockticks
+        DRAM Bandwidth Bound: 2.0% of Elapsed Time
+
+    Bandwidth Utilization
+    Bandwidth Domain  Platform Maximum  Observed Maximum  Average  % of Elapsed Time with High BW Utilization(%)
+    ----------------  ----------------  ----------------  -------  ---------------------------------------------
+    DRAM, GB/sec      12                          11.800    1.056                                           2.0%
+Vectorization: 95.4% of Packed FP Operations
+ | Using the latest vector instruction set can improve parallelism for this
+ | code. Consider either recompiling the code with the latest instruction set or
+ | using Intel Advisor to get vectorization help.
+ |
+    Instruction Mix
+        SP FLOPs: 0.0% of uOps
+            Packed: 0.0% from SP FP
+                128-bit: 0.0% from SP FP
+                256-bit: 0.0% from SP FP
+            Scalar: 0.0% from SP FP
+        DP FLOPs: 53.6% of uOps
+            Packed: 95.4% from DP FP
+                128-bit: 95.4% from DP FP
+                 | Using the latest vector instruction set can improve
+                 | parallelism for this code. Consider either recompiling the
+                 | code with the latest instruction set or using Intel Advisor
+                 | to get vectorization help.
+                 |
+                256-bit: 0.0% from DP FP
+            Scalar: 4.6% from DP FP
+        x87 FLOPs: 0.0% of uOps
+        Non-FP: 46.4% of uOps
+    FP Arith/Mem Rd Instr. Ratio: 4.269
+    FP Arith/Mem Wr Instr. Ratio: 54.046
+Collection and Platform Info
+    Application Command Line: ./particles2023_c.exe 
+    Operating System: 6.2.0-26-generic DISTRIB_ID=Ubuntu DISTRIB_RELEASE=22.04 DISTRIB_CODENAME=jammy DISTRIB_DESCRIPTION="Ubuntu 22.04.3 LTS"
+    Computer Name: cellomarioThinkPad
+    Result Size: 116,9 MB 
+    Collection start time: 14:35:26 24/08/2023 UTC
+    Collection stop time: 14:35:31 24/08/2023 UTC
+    Collector Type: Driverless Perf per-process sampling
+    CPU
+        Name: Intel(R) microarchitecture code named Cometlake U
+        Frequency: 2.304 GHz
+        Logical CPU Count: 8
+        Max DRAM Single-Package Bandwidth: 12.000 GB/s
+
+If you want to skip descriptions of detected performance issues in the report,
+enter: vtune -report summary -report-knob show-issues=false -r <my_result_dir>.
+Alternatively, you may view the report in the csv format: vtune -report
+<report_name> -format=csv.
