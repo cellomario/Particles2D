@@ -4,7 +4,7 @@ rm *.exe
 
 source /opt/intel/oneapi/setvars.sh intel64 --force
 
-icx -g -qopenmp -O2 -parallel-source-info=2 particles2023_c.c -o particles2023_c.exe
+icx -g -qopenmp -O2 -parallel-source-info=2 particles2023.c -o particles2023_c.exe
 
-export OMP_NUM_THREADS=6 
+export OMP_NUM_THREADS=4 
 vtune -collect hpc-performance ./particles2023_c.exe
