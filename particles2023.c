@@ -180,7 +180,7 @@ void ComptPopulation(struct Population *p, double *forces)
 	 * compute effects of forces on particles in a interval time
 	 * 
 	*/
-   #pragma omp parallel for
+   #pragma omp simd
 	for (int i = 0; i < p->np; i++ ) {
 		double x0 = p->x[i]; 
       double y0 = p->y[i]; 
