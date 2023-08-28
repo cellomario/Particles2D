@@ -5,3 +5,5 @@ gmon.out
 r0*/
 *.optrpt
 *.opt.yaml
+*.err
+*.out
