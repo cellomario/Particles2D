@@ -444,6 +444,7 @@ void GeneratingField(struct i2dGrid *grid, int MaxIt)
    Yinc = Si / (double)Ydots; 
 
    izmn=9999; izmx=-9;
+   // #pragma omp for simd
    for ( iy = 0; iy < Ydots; iy++ ) {
       for ( ix = 0; ix < Xdots; ix++ ) {
          ca = Xinc * ix + Ir; 
@@ -451,7 +452,7 @@ void GeneratingField(struct i2dGrid *grid, int MaxIt)
          rad = sqrt( ca * ca * ( (double)1.0 + (cb/ca)*(cb/ca) ) );
          zan = 0.0;
          zbn = 0.0; 
-         for ( iz = 1; iz <= MaxIt; iz++ ) {
+         for ( iz = 1; iz <= MaxIt; iz++ ) { // TODO: serial hotspot
             if ( rad > (double)2.0 ) break;  
             za = zan;
             zb = zbn;
@@ -587,6 +588,7 @@ void ParticleScreen(struct i2dGrid* pgrid, struct Population pp, int step)
 	char name[40];
 	
 	Xdots = pgrid->EX; Ydots = pgrid->EY;
+   #pragma omp for simd 
     for ( ix = 0; ix < Xdots; ix++ ) {
 		for ( iy = 0; iy < Ydots; iy++ ) {
 			pgrid->Values[index2D(ix,iy,Xdots)] = 0;
@@ -596,7 +598,8 @@ void ParticleScreen(struct i2dGrid* pgrid, struct Population pp, int step)
     rmax = MaxDoubleVal(pp.np,pp.weight);
     wint = rmax - rmin;
 	Dx = pgrid->Xe - pgrid->Xs; 
-	Dy = pgrid->Ye - pgrid->Ys; 
+	Dy = pgrid->Ye - pgrid->Ys;
+   #pragma omp parallel for 
     for ( n = 0; n < pp.np; n++ ) {
 		// keep a tiny border free anyway
 		ix = Xdots * pp.x[n] / Dx; if ( ix >= Xdots-1 || ix <= 0 ) continue;
@@ -802,8 +805,8 @@ int IntVal2ppmB(int s1, int s2, int *idata, int *vmin, int *vmax, char* name)
    int i, j, j3;
    int cm[3][256];  /* R,G,B, Colour Map */
    FILE *ouni, *ColMap;
-   int  vp, vs;
-   int  rmin, rmax, value;
+   int  vs;
+   int  rmin, rmax;
    char  fname[80], jname[80], command[80];
    unsigned char *immarow, r, g, b;
    
@@ -852,13 +855,16 @@ int IntVal2ppmB(int s1, int s2, int *idata, int *vmin, int *vmax, char* name)
   	  rmax = *vmax;
    }
    for ( i = 0; i < s1; i++ ) {
-      for ( j = 0; j < s2; j++ ) {
-      	 value = idata[i*s2+j];
-      	 if ( value < rmin ) value = rmin;
-      	 if ( value > rmax ) value = rmax;
-         vp = (int) ( (double)(value - rmin) * (double)255.0 / (double)(rmax - rmin) );
+      #pragma omp parallel for
+      for ( j = 0; j < s2; j++ ) { // TODO: serial hotspot
+         int value = idata[i*s2+j];
+         if ( value < rmin ) value = rmin;
+         if ( value > rmax ) value = rmax;
+         int vp = (int) ( (double)(value - rmin) * (double)255.0 / (double)(rmax - rmin) );
          j3 = j*3;
-         immarow[j3] = (unsigned char)cm[0][vp]; immarow[j3+1] = (unsigned char)cm[1][vp]; immarow[j3+2] = (unsigned char)cm[2][vp]; 
+         immarow[j3]   = (unsigned char)cm[0][vp]; 
+         immarow[j3+1] = (unsigned char)cm[1][vp]; 
+         immarow[j3+2] = (unsigned char)cm[2][vp]; 
       }
       fwrite(immarow,(s2 * sizeof(unsigned char) * 3),1,ouni);
    }
