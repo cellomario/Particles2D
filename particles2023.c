@@ -551,7 +551,7 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
       for (int i=0; i < 2*pp->np; i++ ){
          forces[i] = 0.0;
       }
-      #pragma omp parallel for simd
+      #pragma omp parallel for simd schedule(guided)
       for (int i=0; i < pp->np; i++ ) {
          double fx = 0.0;
          double fy = 0.0;

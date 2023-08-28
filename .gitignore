@@ -3,3 +3,5 @@ output/*
 particles2023_c.exe
 gmon.out
 r0*/
+*.optrpt
+*.opt.yaml
