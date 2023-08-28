@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --nodes=1             # -N nodes 
-#SBATCH --ntasks-per-node=4   # MPI tasks/node (max 128)
-#SBATCH --cpus-per-task=4     # OpenMP threads/task
+#SBATCH --ntasks-per-node=1   # MPI tasks/node (max 128)
+#SBATCH --cpus-per-task=24     # OpenMP threads/task
 #SBATCH --gres=gpu:0          # 1 gpu per node (max 4)
-#SBATCH --time=1:00:00        # max 24:00:00
+#SBATCH --time=00:10:00        # max 24:00:00
 #SBATCH --mem=14GB            # memory/node (max 246GB)
 #SBATCH -A tra23_PoliMI_e
 #SBATCH -p g100_usr_interactive
@@ -12,13 +12,13 @@
 #SBATCH --output=outjobfile-%J.out   # stdout file
 echo "Job started at " `date`
 rm *.ppm *.jpg *.dmp *.sta
-rm *.err *.out
 module purge
 module load autoload
 module load intel/oneapi-2022--binary
 source /cineca/prod/opt/compilers/intel/oneapi-2022/binary/setvars.sh
-icc -g -qopenmp -O3 -parallel-source-info=2 particles2023.c -o particles2023_c.exe
-./particles2023_c.exe
+icc -g -qopenmp -O2 -parallel-source-info=2 particles2023.c -o particles2023_c.exe
+export OMP_NUM_THREADS=4
+vtune -collect hpc-performance ./particles2023_c.exe
 wait
 echo "Job finished at " `date`
 exit
