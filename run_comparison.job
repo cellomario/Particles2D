@@ -8,8 +8,6 @@
 #SBATCH -A tra23_PoliMI_e
 #SBATCH -p g100_usr_interactive
 #SBATCH --job-name=particles2023_c             # job_name
-#SBATCH --error=errjobfile-%J.err    # stderr file
-#SBATCH --output=outjobfile-%J.out   # stdout file
 echo "Job started at " `date`
 rm -r output/*
 module purge
