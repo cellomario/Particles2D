@@ -1,1 +1,0 @@
-da esplorare una disposizione differente in memoria delle particelle in modo da ridurre i cache miss (quando leggo una particle, posso leggere sia x che y che m invece che tenerle su tre array paralleli, così tutte le informazioni di una particle sono contigue in memoria (..?))
