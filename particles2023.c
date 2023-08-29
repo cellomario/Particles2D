@@ -542,7 +542,7 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
 
 	 // compute forces acting on each particle step by step
    for (int t=0; t < mxiter; t++ ) { // iteration
-      fprintf(stdout,"Step %d of %d\n",t,mxiter);
+       if (t % 5 == 0) fprintf(stdout,"Step %d of %d\n",t,mxiter);
       ParticleScreen(pgrid,*pp,t);
       // DumpPopulation call frequency may be changed
       if ( t%4 == 0 ) DumpPopulation(*pp,t);
