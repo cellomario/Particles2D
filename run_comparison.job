@@ -1,0 +1,39 @@
+#!/bin/bash
+#SBATCH --nodes=1             # -N nodes 
+#SBATCH --ntasks-per-node=1   # MPI tasks/node (max 128)
+#SBATCH --cpus-per-task=24     # OpenMP threads/task
+#SBATCH --gres=gpu:0          # 1 gpu per node (max 4)
+#SBATCH --time=02:10:00        # max 24:00:00
+#SBATCH --mem=14GB            # memory/node (max 246GB)
+#SBATCH -A tra23_PoliMI_e
+#SBATCH -p g100_usr_interactive
+#SBATCH --job-name=particles2023_c             # job_name
+#SBATCH --error=errjobfile-%J.err    # stderr file
+#SBATCH --output=outjobfile-%J.out   # stdout file
+echo "Job started at " `date`
+rm -r output/*
+module purge
+module load autoload
+module load intel/oneapi-2022--binary
+source /cineca/prod/opt/compilers/intel/oneapi-2022/binary/setvars.sh
+icc -qopenmp -O3 particles2023.c -o particles2023_vector.exe
+icc -qopenmp -O3 particles2023_original.c -o particles2023_original.exe
+icc -qopenmp -O3 particles2023_reduction.c -o particles2023_reduction.exe
+icc -qopenmp -O3 particles2023_collapse.c -o particles2023_collapse.exe
+# for nt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24; do
+for nt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24; do
+   export OMP_NUM_THREADS=$nt
+   echo ""
+   echo "Started with $OMP_NUM_THREADS threads at " `date`
+   echo "----Original"
+   time ./particles2023_original.exe
+   echo "----Reduction"
+   time ./particles2023_reduction.exe
+   echo "----Collapse"
+   time ./particles2023_collapse.exe
+   echo "----Vectorization"
+   time ./particles2023_vector.exe
+   wait
+   echo "Finished with $OMP_NUM_THREADS threads at " `date`
+done
+exit
