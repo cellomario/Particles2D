@@ -553,7 +553,8 @@ void SystemEvolution(struct i2dGrid *pgrid, struct Population *pp, int mxiter)
          forces[i] = 0.0;
       }
       // #pragma omp parallel for simd
-      #pragma omp target map(to:pp->x[0:pp->np],pp->y[0:pp->np],pp->weight[0:pp->np]) map(from:forces[0:2*pp->np])
+      // #pragma omp target map(to:pp->x[0:pp->np],pp->y[0:pp->np],pp->weight[0:pp->np]) map(from:forces[0:2*pp->np])
+      #pragma omp target 
       for (int i=0; i < pp->np; i++ ) {
          double fx = 0.0;
          double fy = 0.0;
